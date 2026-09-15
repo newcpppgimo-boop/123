@@ -1,0 +1,7 @@
+window.toggleMenu=()=>document.getElementById('mainNav')?.classList.toggle('open');
+window.escapeHtml=s=>String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]));
+window.formatDate=d=>d?new Date(d).toLocaleDateString('en-PH',{year:'numeric',month:'short',day:'numeric'}):'';
+window.logout=async()=>{await supabaseClient.auth.signOut();location.href='../login.html';};
+async function requireYouth(){const {data:{user}}=await supabaseClient.auth.getUser();if(!user){location.href='login.html';return null}const {data:p}=await supabaseClient.from('profiles').select('*').eq('id',user.id).single();if(p?.role==='sk_officer'){location.href='admin/index.html';return null}return {user,profile:p}}
+async function requireOfficer(){const {data:{user}}=await supabaseClient.auth.getUser();if(!user){location.href='../login.html';return null}const {data:p}=await supabaseClient.from('profiles').select('role,full_name,email').eq('id',user.id).single();if(p?.role!=='sk_officer'){location.href='../index.html';return null}return {user,profile:p}}
+document.addEventListener('DOMContentLoaded',()=>{if(location.pathname.endsWith('/admin/')||location.pathname.endsWith('/admin/index.html'))requireOfficer()});
